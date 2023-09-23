@@ -1,4 +1,7 @@
-﻿namespace MyFirstWebAPI.Models
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Extensions;
+
+namespace MyFirstWebAPI.Models
 {
     public class repositoryEmployee
     {
@@ -20,23 +23,80 @@
             Employee employeeId = _context.Employees.Find(id);
             return employeeId;
         }
-        public int AddEmployee(Employee newEmployee)
+        public int AddEmployee(Employee employee)
         {
-            _context.Employees.Add(newEmployee);
-            return _context.SaveChanges();
+          Employee? foundEmp = _context.Employees.Find(employee.EmployeeId);
+            if (foundEmp != null)
+          {
+                throw new Exception("Failed to add Employee Duplicate Id");
+             }
+         
+          EntityState es = _context.Entry(employee).State;
+           Console.WriteLine($"EntityState B4Add : {es.GetDisplayName()}");
+            _context.Employees.Add(employee);
+            es = _context.Entry(employee).State;
+            Console.WriteLine($"EntityState After Add : {es.GetDisplayName()}");
+            int result = _context.SaveChanges();
+            es = _context.Entry(employee).State;
+            Console.WriteLine($"EntityState aftersavechanges:{es.GetDisplayName()}");
+            return result;
         }
-        public Employee UpdateEmployee(Employee updatedEmployee)
+        public int UpdateEmployee(Employee updatedEmployee)
+
+
+
         {
+
+
+
+            EntityState es = _context.Entry(updatedEmployee).State;
+            Console.WriteLine(value: $"EntityState b4add:{es.GetDisplayName()}");
             _context.Employees.Update(updatedEmployee);
-            // Console.WriteLine(_context.Entry(updatedEmployee).State);
-            _context.SaveChanges();
-            return updatedEmployee;
+            es = _context.Entry(updatedEmployee).State;
+            Console.WriteLine($"EntityState after add:{es.GetDisplayName()}");
+            int result = _context.SaveChanges();
+            es = _context.Entry(updatedEmployee).State;
+            Console.WriteLine($"EntityState aftersavechanges:{es.GetDisplayName()}");
+            return result;
         }
+       
+
         public int DeleteEmployee(int id)
+
         {
-            Employee emp = _context.Employees.Find(id);
-            _context.Employees.Remove(emp);
-            return _context.SaveChanges();
+
+            Employee empToDelete = _context.Employees.Find(id);
+
+            EntityState es = EntityState.Detached;
+
+            int result = 0;
+
+            if (empToDelete != null)
+
+            {
+
+                es = _context.Entry(empToDelete).State;
+
+                Console.WriteLine($"EntityState b4update:{es.GetDisplayName()}");
+
+                _context.Employees.Remove(empToDelete);
+
+                es = _context.Entry(empToDelete).State;
+
+                Console.WriteLine($"EntityState after update:{es.GetDisplayName()}");
+
+                result = _context.SaveChanges();
+
+                es = _context.Entry(empToDelete).State;
+
+                Console.WriteLine($"EntityState after saved update:{es.GetDisplayName()}");
+
+
+
+            }
+
+            return result;
+
         }
 
     }

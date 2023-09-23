@@ -45,6 +45,7 @@ namespace MyFirstWebAPI.Controllers
             Employee employeeById = _repositoryEmployee.FindEmpoyeeById(id);
             return employeeById;
         }
+
         [HttpPost("/AddEmployee")]
         public string AddEmployee(Employee newEmployee)
         {
@@ -58,20 +59,45 @@ namespace MyFirstWebAPI.Controllers
                 return "Employee Added To Database";
             }
         }
-
-
-
-        [HttpPut]
-        public Employee EditEmployee(int id, [FromBody] Employee updatedEmployee)
+        [HttpPost]
+        public int Post(EmpViewModel emp)
         {
+            Employee employee = new Employee();
+            {
+                employee.FirstName = emp.FirstName;
+                employee.LastName = emp.LastName;
+                employee.BirthDate = emp.BirthDate;
+                employee.HireDate = emp.HireDate;
+                employee.Title = emp.Title;
+                employee.City = emp.City;
+                employee.ReportsTo = emp.ReportsTo > 0 ? emp.ReportsTo : null;
+                // employee.EmployeeId
 
 
 
-            updatedEmployee.EmployeeId = id; // Ensure the ID in the URL matches the EmployeeId
-            Employee savedEmployee = _repositoryEmployee.UpdateEmployee(updatedEmployee);
-            return savedEmployee;
+            };
+            _repositoryEmployee.AddEmployee(employee);
+            return 1;
+
+
+
         }
-        [HttpGet("/DeleteEmployee")]
+
+
+        [HttpPut("/EditEmployee")]
+        public int EditEmployee(int id, [FromBody] EmpViewModel emp)
+        {
+            Employee employee = new Employee();
+            employee.EmployeeId = emp.EmpID;
+            employee.FirstName = emp.FirstName;
+            employee.LastName = emp.LastName;
+            _repositoryEmployee.UpdateEmployee(employee);
+            return 1;
+        }
+
+
+
+        [HttpDelete("/DeleteEmployee")]
         public string DeleteEmployee(int id)
         {
             int employeestatus = _repositoryEmployee.DeleteEmployee(id);
